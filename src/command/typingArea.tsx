@@ -1,7 +1,22 @@
-import React, { createRef, useContext, useEffect, useRef } from 'react'
-import { useStopwatch } from 'react-timer-hook'
+import React, { Dispatch, useContext, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { TextContext } from '../providers'
+import { CookiesContext, Mode, TextContext } from '../providers'
+import type { Score } from './commandCenter'
+
+interface Props {
+  isRunning: boolean
+  startStopwatch: () => void
+  stopStopwatch: () => void
+  setFinalScore: Dispatch<any>
+}
+
+// @todo Move this to correct component
+enum Color {
+  Inherit = 'inherit',
+  Highlight = '#a56de2',
+  Correct = '#68b723',
+  Wrong = '#c6262e',
+}
 
 const Wrapper = styled.div`
   margin-top: 1rem;
@@ -16,11 +31,9 @@ const TextDisplay = styled.div`
   overflow: hidden;
 `
 
-const Word = styled.span<{ hidden?: boolean; correct?: boolean; wrong?: boolean; highlight?: boolean }>`
+const Word = styled.span<{ color: string }>`
   ${props => props.hidden && 'display: none;'}
-  ${props => props.correct && 'color: #68b723;'}
-  ${props => props.wrong && 'color: #c6262e;'}
-  ${props => props.highlight && 'color: #a56de2;'}
+  color: ${props => props.color};
 `
 
 const Input = styled.input`
@@ -33,11 +46,24 @@ const Input = styled.input`
   font-size: 1.2rem;
 `
 
-export const TypingArea = () => {
+export const TypingArea = (props: Props) => {
+  const { mode } = useContext(CookiesContext)
   const { text, currentWord, setCurrentWord } = useContext(TextContext)
   // const wordElements = useRef(Array.from({ length: text.length }, a => createRef<HTMLSpanElement>()))
   const wordElements = useRef<any>([])
-  const { isRunning, start, pause, reset } = useStopwatch({ autoStart: false })
+  const score: Score = { total: 0, correct: 0, wrong: 0 }
+  const updateScore = (isCorrect: boolean) => {
+    score.total++
+    isCorrect ? score.correct++ : score.wrong++
+  }
+  // const colors = Array(text.length).fill(Color.Inherit)
+  const [colors, setColors] = useState<Color[]>([])
+
+  React.useEffect(() => {
+    if (text.length) {
+      setColors(text.map((_, i) => i !== 0 ? Color.Inherit : Color.Highlight))
+    }
+  },[text])
 
   // useEffect(() => {
   //   wordElements.current = Array.from({ length: text.length }, a => createRef<HTMLSpanElement>())
@@ -47,8 +73,8 @@ export const TypingArea = () => {
     const value = e.target.value
 
     // Check if first word entered
-    if (currentWord === 0 && value === '' && !isRunning) {
-      start()
+    if (currentWord === 0 && value === '' && !props.isRunning) {
+      props.startStopwatch()
     }
 
     if (e.key === ' ') {
@@ -64,21 +90,33 @@ export const TypingArea = () => {
           }
         }
 
-        // If it is not the last word increment currentWord
-        if (currentWord < text.length - 1) {
-          if (value === text[currentWord]) {
-            wordElements.current[currentWord].setAttribute('correct', '')
-          } else {
-            wordElements.current[currentWord].setAttribute('wrong', '')
-          }
-          wordElements.current[currentWord + 1].setAttribute('highlight', '')
-        } else if (currentWord === text.length - 1) {
-          wordElements.current[currentWord].setAttribute('wrong', '')
-        }
+        // @todo refactor below
+        value === text[currentWord]
+          ? setColors(colors.map((color, i) => {
+            if (i === currentWord) {
+              return Color.Correct
+            } else if (i === currentWord + 1) {
+              return Color.Highlight
+            } else {
+              return color
+            }
+          }))
+          : setColors(colors.map((color, i) => {
+            if (i === currentWord) {
+              return Color.Wrong
+            } else if (i === currentWord + 1) {
+              return Color.Highlight
+            } else {
+              return color
+            }
+          }))
 
         e.target.value = ''
         setCurrentWord(currentWord + 1)
       }
+    } else if (e.key === 'Enter' && mode === Mode.Leisure) {
+      props.stopStopwatch()
+      props.setFinalScore(score)
     }
   }
 
@@ -88,11 +126,11 @@ export const TypingArea = () => {
         {
           text.map((word: string, i) => {
             const getRef = (element) => wordElements.current.push(element)
-            return <Word key={word + i} ref={getRef} highlight={i === 0}>{word} </Word>
+            return <Word key={word + i} ref={getRef} color={colors[i]}>{word} </Word>
           })
         }
       </TextDisplay>
-      <Input type={'text'} onKeyPress={handleKeyPress} placeholder={'start typing here...'} />
+      <Input type={'text'} onKeyPress={handleKeyPress} />
     </Wrapper>
   )
 }

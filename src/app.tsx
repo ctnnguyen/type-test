@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { CommandCenter } from './command/commandCenter'
-import { CookiesProvider } from './cookiesProvider'
 import { Footer } from './footer'
-import { TextProvider } from './providers'
+import { CookiesProvider, TextProvider } from './providers'
 
 const Header = styled.h2`
   line-height: 2rem;

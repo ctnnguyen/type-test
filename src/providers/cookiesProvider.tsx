@@ -25,8 +25,12 @@ export const CookiesProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    setCookie('theme', theme ?? 'light')
-    setCookie('mode', mode ?? Mode.Leisure)
+    const _theme = theme ?? 'light'
+    const _mode = mode ?? Mode.Leisure
+    setCookie('theme', _theme)
+    setCookie('mode', _mode)
+    setTheme(_theme)
+    setMode(_mode)
   }, [theme, mode])
 
   return (

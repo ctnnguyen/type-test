@@ -1,6 +1,11 @@
 import React, { useContext } from 'react'
 import styled from 'styled-components'
-import { CookiesContext } from '../cookiesProvider'
+import { CookiesContext } from '../providers'
+
+interface Props {
+  wpm: string
+  accuracy: string
+}
 
 const Wrapper = styled.div`
   display: flex;
@@ -19,7 +24,7 @@ const ModeButton = styled.button`
   text-decoration: underline;
 `
 
-export const Bar = () => {
+export const Bar = (props: Props) => {
   const { mode, toggleMode } = useContext(CookiesContext)
 
   return (
@@ -29,7 +34,7 @@ export const Bar = () => {
         <ModeButton type={'button'} onClick={toggleMode}>{mode}</ModeButton>
       </Wing>
       <Wing>
-        WPM: XX / ACC: XX
+        WPM: {props.wpm} / ACC: {props.accuracy}
       </Wing>
     </Wrapper>
   )
