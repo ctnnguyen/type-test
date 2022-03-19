@@ -4,6 +4,7 @@
   "description": "<a href=\"https://typings.gg\" target=\"_blank\">typings.gg</a> is a sleek and modern typing test website. it supports many custom themes",
   "main": "main.js",
   "scripts": {
+    "build": "snowpack build",
     "start": "snowpack dev"
   },
   "repository": {
