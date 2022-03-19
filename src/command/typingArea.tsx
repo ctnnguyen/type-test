@@ -1,13 +1,12 @@
-import React, { Dispatch, useContext, useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { CookiesContext, Mode, TextContext } from '../providers'
-import type { Score } from './commandCenter'
 
 interface Props {
   isRunning: boolean
   startStopwatch: () => void
   stopStopwatch: () => void
-  setFinalScore: Dispatch<any>
+  updateScore: (isCorrect: boolean) => void
 }
 
 // @todo Move this to correct component
@@ -49,14 +48,7 @@ const Input = styled.input`
 export const TypingArea = (props: Props) => {
   const { mode } = useContext(CookiesContext)
   const { text, currentWord, setCurrentWord } = useContext(TextContext)
-  // const wordElements = useRef(Array.from({ length: text.length }, a => createRef<HTMLSpanElement>()))
   const wordElements = useRef<any>([])
-  const score: Score = { total: 0, correct: 0, wrong: 0 }
-  const updateScore = (isCorrect: boolean) => {
-    score.total++
-    isCorrect ? score.correct++ : score.wrong++
-  }
-  // const colors = Array(text.length).fill(Color.Inherit)
   const [colors, setColors] = useState<Color[]>([])
 
   React.useEffect(() => {
@@ -64,10 +56,6 @@ export const TypingArea = (props: Props) => {
       setColors(text.map((_, i) => i !== 0 ? Color.Inherit : Color.Highlight))
     }
   },[text])
-
-  // useEffect(() => {
-  //   wordElements.current = Array.from({ length: text.length }, a => createRef<HTMLSpanElement>())
-  // }, [text])
 
   const handleKeyPress = (e) => {
     const value = e.target.value
@@ -91,8 +79,9 @@ export const TypingArea = (props: Props) => {
         }
 
         // @todo refactor below
-        value === text[currentWord]
-          ? setColors(colors.map((color, i) => {
+        if (value === text[currentWord]) {
+          props.updateScore(true)
+          setColors(colors.map((color, i) => {
             if (i === currentWord) {
               return Color.Correct
             } else if (i === currentWord + 1) {
@@ -101,7 +90,9 @@ export const TypingArea = (props: Props) => {
               return color
             }
           }))
-          : setColors(colors.map((color, i) => {
+        } else {
+          props.updateScore(false)
+          setColors(colors.map((color, i) => {
             if (i === currentWord) {
               return Color.Wrong
             } else if (i === currentWord + 1) {
@@ -110,13 +101,13 @@ export const TypingArea = (props: Props) => {
               return color
             }
           }))
+        }
 
         e.target.value = ''
         setCurrentWord(currentWord + 1)
       }
     } else if (e.key === 'Enter' && mode === Mode.Leisure) {
       props.stopStopwatch()
-      props.setFinalScore(score)
     }
   }
 
@@ -134,8 +125,3 @@ export const TypingArea = (props: Props) => {
     </Wrapper>
   )
 }
-
-
-// <!--        <div class="bar">-->
-// <!--          <input id="input-field" type="text" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" tabindex="1"/>-->
-// <!--          <button id="redo-button" onclick="setText(event)" tabindex="2">redo</button>-->

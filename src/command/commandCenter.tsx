@@ -22,19 +22,24 @@ const Wrapper = styled.section`
 
 export const CommandCenter = () => {
   const { seconds, minutes, hours, days, isRunning, start, pause, reset } = useStopwatch({ autoStart: false })
-  const [finalScore, setFinalScore] = useState<Score>({ total: 0, correct: 0, wrong: 0 })
+  const [score, setScore] = useState<Score>({ total: 0, correct: 0, wrong: 0 })
   const [wpm, setWPM] = useState<string>('XX')
   const [accuracy, setAccuracy] = useState<string>('XX')
+  const updateScore = (isCorrect: boolean) => setScore({
+    total: score.total + 1,
+    correct: isCorrect ? score.correct + 1 : score.correct,
+    wrong: !isCorrect ? score.wrong + 1 : score.wrong,
+  })
 
   useEffect(() => {
     if (seconds || minutes || hours || days) {
       const mins = (days / 1440) + (hours / 60) + minutes + (seconds * 0.0166667)
-      const acc = Math.min(Math.floor((finalScore.correct / finalScore.total) * 100), 100)
-      const calculated = finalScore.total / mins
+      const acc = Math.min(Math.floor((score.correct / score.total) * 100), 100)
+      const calculated = Math.floor(score.total / mins)
       setWPM(calculated.toString())
       setAccuracy(acc.toString())
     }
-  }, [pause])
+  }, [isRunning])
 
   return (
     <Wrapper>
@@ -46,7 +51,7 @@ export const CommandCenter = () => {
         isRunning={isRunning}
         startStopwatch={start}
         stopStopwatch={pause}
-        setFinalScore={setFinalScore}
+        updateScore={updateScore}
       />
     </Wrapper>
   )
