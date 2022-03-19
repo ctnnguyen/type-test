@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "react": "./react.js",
+    "react-cookie": "./react-cookie.js",
+    "react-dom": "./react-dom.js",
+    "react-timer-hook": "./react-timer-hook.js",
+    "styled-components": "./styled-components.js",
+    "use-file-picker": "./use-file-picker.js"
+  }
+}
