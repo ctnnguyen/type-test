@@ -21,7 +21,7 @@ const Wrapper = styled.section`
 `
 
 export const CommandCenter = () => {
-  const { seconds, minutes, hours, days, isRunning, start, pause, reset } = useStopwatch({ autoStart: false })
+  const { seconds, minutes, hours, days, isRunning, start, pause, reset: resetTimer } = useStopwatch({ autoStart: false })
   const [score, setScore] = useState<Score>({ total: 0, correct: 0, wrong: 0 })
   const [wpm, setWPM] = useState<string>('XX')
   const [accuracy, setAccuracy] = useState<string>('XX')
@@ -32,12 +32,18 @@ export const CommandCenter = () => {
   })
 
   useEffect(() => {
+    setScore({ total: 0, correct: 0, wrong: 0 })
+    resetTimer()
+  }, [])
+
+  useEffect(() => {
     if (seconds || minutes || hours || days) {
       const mins = (days / 1440) + (hours / 60) + minutes + (seconds * 0.0166667)
       const acc = Math.min(Math.floor((score.correct / score.total) * 100), 100)
       const calculated = Math.floor(score.total / mins)
       setWPM(calculated.toString())
       setAccuracy(acc.toString())
+      resetTimer()
     }
   }, [isRunning])
 
