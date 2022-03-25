@@ -5,7 +5,7 @@ export const TextProvider = ({children}) => {
   const [text, setText] = useState([]);
   const [currentWord, setCurrentWord] = useState(0);
   const setCustomText = (words) => {
-    const replaced = words.replace(/\n/g, "").replace(/[[:space:]]{2,}/g, " ").split(" ");
+    const replaced = words.replace(/[\n\r]/g, " ").replace(/ {2,}/g, " ").split(" ");
     setText(replaced);
   };
   const resetText = () => {
