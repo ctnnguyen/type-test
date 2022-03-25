@@ -17,8 +17,8 @@ export const TextProvider = ({ children }) => {
 
   const setCustomText = (words: string) => {
     const replaced = words
-      .replace(/\n/g, '')
-      .replace(/[[:space:]]{2,}/g, ' ')
+      .replace(/[\n\r]/g, ' ')
+      .replace(/ {2,}/g, ' ')
       .split(' ')
     setText(replaced)
   }
